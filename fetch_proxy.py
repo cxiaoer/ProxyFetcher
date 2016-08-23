@@ -7,7 +7,7 @@ from Queue import Queue
 import requests
 from bs4 import BeautifulSoup
 import hashlib
-from ProxyItem import IPProxyItem
+from ProxyItem import ProxyItem
 from db_op import batch_insert_ip
 from general import *
 
@@ -70,10 +70,10 @@ def fetch():
                 logger.info('[fetch][%s] 在页面[%s]中抓取到ip:%s, 端口:%s, '
                             '类型:%s,位置:%s', site, url, ip, port, ip_type,
                             ip_location)
-                ip_list.append(IPProxyItem(ip=ip,
-                                           port=port,
-                                           proxy_type=ip_type,
-                                           ip_location=ip_location))
+                ip_list.append(ProxyItem(ip=ip,
+                                         port=port,
+                                         proxy_type=ip_type,
+                                         ip_location=ip_location))
         batch_insert_ip(ip_list=ip_list)
         logger.info('[fetch][%s] 批量保存成功', site)
         # 没有分页
