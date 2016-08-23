@@ -7,7 +7,7 @@ from Queue import Queue
 import requests
 from bs4 import BeautifulSoup
 import hashlib
-from IPProxyItem import IPProxyItem
+from ProxyItem import IPProxyItem
 from db_op import batch_insert_ip
 from general import *
 
