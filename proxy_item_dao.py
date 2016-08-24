@@ -74,3 +74,15 @@ def batch_insert_proxy(ip_list):
         connection.commit()
     finally:
         connection_pool.free_connection(connection=connection)
+
+
+def get_need_test_proxy():
+    select_sql = 'select Ip as ip, Port as port, ProxyType as proxy_type' \
+                 'from T_IP_Proxies' \
+                 'where NextTestTime < now() and Status = 0' \
+                 'order by NextTestTime asc'
+    pass
+
+
+def update_proxy_status():
+    pass

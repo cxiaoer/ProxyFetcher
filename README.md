@@ -18,13 +18,13 @@ CREATE TABLE T_IP_Proxies (
  Location           VARCHAR(100) NOT NULL DEFAULT ''
  COMMENT 'ip位置',
  Status             INT          NOT NULL DEFAULT 0
- COMMENT 'ip状态;0-需要检测;1-放弃检测(基本是不可用代理了)',
+ COMMENT 'ip状态;0-需要检测;1-放弃检测(基本是不可用代理了);2-检测中',
  SuccessedTestTimes INT          NOT NULL DEFAULT 0
  COMMENT 'socket检测成功次数',
  FailedTestTimes    INT          NOT NULL DEFAULT 0
  COMMENT 'socket检测失败次数',
  NextTestTime       DATETIME     NOT NULL DEFAULT now(),
- LastTestTime       DATETIME     NOT NULL DEFAULT now(),
+ LastModifyTime       DATETIME     NOT NULL DEFAULT now(),
  CreateTime         DATETIME     NOT NULL DEFAULT now(),
  CONSTRAINT Ip_Port UNIQUE (Ip, Port)
 )
