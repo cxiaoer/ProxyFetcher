@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import hashlib
 from ProxyItem import ProxyItem
-from db_op import batch_insert_ip
+from proxy_item_dao import batch_insert_proxy
 from general import *
 
 # 简单的agent 还是要用的,防止被封
@@ -74,7 +74,7 @@ def fetch():
                                          port=port,
                                          proxy_type=ip_type,
                                          ip_location=ip_location))
-        batch_insert_ip(ip_list=ip_list)
+        batch_insert_proxy(ip_list=ip_list)
         logger.info('[fetch][%s] 批量保存成功', site)
         # 没有分页
         if conf.nav_area_css is None:
