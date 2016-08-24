@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import hashlib
 from ProxyItem import ProxyItem
 from proxy_item_dao import batch_insert_proxy
-from general import *
+from utils import *
 
 # 简单的agent 还是要用的,防止被封
 HEADERS = {
