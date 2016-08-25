@@ -65,5 +65,27 @@ def get_need_test_proxy(num):
     return need_test_proxy_list
 
 
-def update_proxy_status():
-    pass
+# 检测完更新每个ip状态；包括状态以及下次检测时间，成功或失败次数
+def update_proxy_status(is_success, ip_info_list):
+    connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
+    try:
+        cursor = connection.cursor()
+        for ip_info in ip_info_list:
+            if is_success:
+                update_sql = 'update T_IP_Proxies set Status = 0, ' \
+                             'NextTestTime = %s , SuccessedTestTimes = ' \
+                             'SuccessedTestTimes +1 ' \
+                             'where Ip = %s and Port = %s' % (
+                                 ip_info['next_test_time'], ip_info['ip'], ip_info['port'])
+            else:
+                update_sql = 'update T_IP_Proxies set Status = 0, ' \
+                             'NextTestTime = %s , FailedTestTimes = ' \
+                             'FailedTestTimes +1 ' \
+                             'where Ip = %s and Port = %s' % (
+                                 ip_info['NextTestTime'], ip_info['ip'], ip_info['port'])
+            cursor.execute(update_sql)
+            connection.commit()
+    except MySQLdb.Error as error:
+        logger.exception('[读取检测任务] 抛异常', error)
+    finally:
+        connection_pool.free_connection(connection=connection)
