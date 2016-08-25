@@ -3,6 +3,8 @@
 from configs import logger_config
 from SimpleConnectionPool import SimpleConnectionPool
 from configs import db_config
+from ProxyItem import ProxyItem
+import MySQLdb
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 # 数据库连接池
@@ -11,55 +13,6 @@ connection_pool = SimpleConnectionPool(host=db_config.db_host,
                                        username=db_config.db_username,
                                        password=db_config.db_password,
                                        max_connection_size=db_config.max_connection_size)
-
-
-# # 连接池, 采用list结构,更好记录每个链接的状态
-# connection_pool = []
-# # 连接池锁
-# __connection_lock = threading.Lock()
-#
-#
-# # 获取连接
-# def get_connection():
-#     current_time = time.time()
-#     with __connection_lock:
-#         while True:
-#             interval = time.time() - current_time
-#             # 10s内没有获取到连接,直接抛异常
-#             if interval > 10:
-#                 logger.error('[获取数据库连接] 获取数据库连接超时[10秒]')
-#                 raise Exception
-#             for (index, connection_dict) in enumerate(connection_pool):
-#                 if connection_dict['status'] == 1:
-#                     continue
-#                 logger.info('[获取数据库连接] 获取到空闲连接, index=%s', index)
-#                 return (index, connection_dict)
-#             # 连接全部处于被占用的情况或者木有连接, 可以新建一个连接放置在里面
-#             if len(connection_pool) <= db_config.max_connection_size:
-#                 logger.warn('[获取数据库连接] 没有空闲连接, 新建一个连接')
-#                 connection_dict = init_db_connection()
-#                 connection_dict['status'] = 1  # 标记为使用中
-#                 connection_pool.append(connection_dict)
-#                 return (connection_pool.index(connection_dict), connection_dict)
-#
-#
-# # 释放连接
-# def release_connection(index):
-#     connection_pool[index]['status'] = 0  # 重新标记为可用
-#     connection_pool[index]['time'] = time.time()  # 重新记录使用时间
-#
-#
-# # 初始化一个连接
-# def init_db_connection():
-#     connection_dict = {}
-#     connection = MySQLdb.connect(host=db_config.db_host,
-#                                  user=db_config.db_username,
-#                                  passwd=db_config.db_password,
-#                                  db=db_config.db)
-#     connection_dict['connection'] = connection
-#     connection_dict['status'] = 0  # 0 - 此连接可用;1-正在使用中
-#     connection_dict['time'] = time.time()  # 记录使用时间
-#     return connection_dict
 
 
 # 批量插入ip 列表, 直接ignore掉duplication记录
@@ -77,11 +30,38 @@ def batch_insert_proxy(ip_list):
 
 
 def get_need_test_proxy():
-    select_sql = 'select Ip as ip, Port as port, ProxyType as proxy_type' \
-                 'from T_IP_Proxies' \
-                 'where NextTestTime < now() and Status = 0' \
-                 'order by NextTestTime asc'
-    pass
+    need_test_proxy_list = []
+    # 每次取100个检测任务
+    select_sql = 'select Ip as ip, Port as port, ' \
+                 'ProxyType as proxy_type, LastModifyTime as last_modify_time ' \
+                 'from T_IP_Proxies ' \
+                 'where NextTestTime < now() and Status = 0 ' \
+                 'order by NextTestTime asc ' \
+                 'limit 100'
+    connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
+    try:
+        cursor = connection.cursor()
+        cursor.execute(select_sql)
+        columns = cursor.description
+        result = [{columns[index][0]: column for index, column in enumerate(value)}
+                  for value in cursor.fetchall()]
+        for item in result:
+            update_sql = 'update T_IP_Proxies set Status = 2, ' \
+                         'LastModifyTime = now() ' \
+                         'where Ip = %s and Port = %s and LastModifyTime = %s'
+            cursor.execute(update_sql, (item['ip'], item['port'],
+                                        str(item['last_modify_time'])))
+            connection.commit()
+            # 乐观锁
+            if cursor.rowcount > 0:
+                need_test_proxy_list.append(ProxyItem(ip=item['ip'],
+                                                      port=item['port'],
+                                                      proxy_type=item['proxy_type']))
+    except MySQLdb.Error as error:
+        logger.exception('[读取检测任务] 抛异常', error)
+    finally:
+        connection_pool.free_connection(connection=connection)
+    return need_test_proxy_list
 
 
 def update_proxy_status():
