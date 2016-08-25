@@ -29,7 +29,8 @@ def batch_insert_proxy(ip_list):
         connection_pool.free_connection(connection=connection)
 
 
-def get_need_test_proxy():
+# 读取检测任务
+def get_need_test_proxy(num):
     need_test_proxy_list = []
     # 每次取100个检测任务
     select_sql = 'select Ip as ip, Port as port, ' \
@@ -37,11 +38,11 @@ def get_need_test_proxy():
                  'from T_IP_Proxies ' \
                  'where NextTestTime < now() and Status = 0 ' \
                  'order by NextTestTime asc ' \
-                 'limit 100'
+                 'limit %s'
     connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
     try:
         cursor = connection.cursor()
-        cursor.execute(select_sql)
+        cursor.execute(select_sql, (num,))
         columns = cursor.description
         result = [{columns[index][0]: column for index, column in enumerate(value)}
                   for value in cursor.fetchall()]
