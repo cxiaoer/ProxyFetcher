@@ -74,17 +74,19 @@ def update_proxy_status(is_success, ip_info_list):
         cursor = connection.cursor()
         for ip_info in ip_info_list:
             if is_success:
-                update_sql = 'update T_IP_Proxies set Status = 0, ' \
+                update_sql = 'update T_IP_Proxies set Status = %s, ' \
                              'NextTestTime = %s , SuccessedTestTimes = ' \
                              'SuccessedTestTimes +1 ' \
-                             'where Ip = %s and Port = %s' % (
-                                 ip_info['next_test_time'], ip_info['ip'], ip_info['port'])
+                             'where Ip = %s and Port = %s' % (ip_info['status'],
+                                                              ip_info['next_test_time'], ip_info['ip'],
+                                                              ip_info['port'])
             else:
-                update_sql = 'update T_IP_Proxies set Status = 0, ' \
+                update_sql = 'update T_IP_Proxies set Status = %s, ' \
                              'NextTestTime = %s , FailedTestTimes = ' \
                              'FailedTestTimes +1 ' \
-                             'where Ip = %s and Port = %s' % (
-                                 ip_info['NextTestTime'], ip_info['ip'], ip_info['port'])
+                             'where Ip = %s and Port = %s' % (ip_info['status'],
+                                                              ip_info['NextTestTime'], ip_info['ip'],
+                                                              ip_info['port'])
             cursor.execute(update_sql)
             connection.commit()
     except MySQLdb.Error as error:
