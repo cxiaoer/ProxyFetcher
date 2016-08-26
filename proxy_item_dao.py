@@ -19,7 +19,8 @@ connection_pool = SimpleConnectionPool(host=db_config.db_host,
 def batch_insert_proxy(ip_list):
     insert_sql = 'insert ignore into T_IP_Proxies (Ip, Port, ProxyType, Location)  ' \
                  'values (%s, %s, %s, %s) '
-    ip_info_list = [(ip.ip, ip.port, ip.proxy_type, ip.ip_location) for ip in ip_list]
+    ip_info_list = [(ip.ip, ip.port, ip.proxy_type, ip.ip_location)
+                    for ip in ip_list]
     connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
     try:
         cursor = connection.cursor()
@@ -33,7 +34,8 @@ def batch_insert_proxy(ip_list):
 def get_need_test_proxy(num):
     need_test_proxy_list = []
     # 每次取100个检测任务
-    select_sql = 'select Ip as ip, Port as port, ' \
+    select_sql = 'select Ip as ip, Port as port, SuccessedTestTimes as success_test_times,' \
+                 'FailedTestTimes as fail_test_times,' \
                  'ProxyType as proxy_type, LastModifyTime as last_modify_time ' \
                  'from T_IP_Proxies ' \
                  'where NextTestTime < now() and Status = 0 ' \
