@@ -15,13 +15,18 @@ def test():
         if len(need_test_proxy_list) > 0:
             for proxy in need_test_proxy_list:
                 tmp = copy.copy(proxy)
+                setattr(tmp, 'status', 0)  # 先标记为需要检测
                 is_success = False
                 if ping(host=tmp.ip, port=tmp.port):
                     is_success = True
-                setattr(tmp, 'next_test_time', time.time() + 10)
+                setattr(tmp, 'next_test_time', time.strftime(
+                    '%Y-%m-%d %H:%M:%S', time.localtime(time.time() + 10)))
                 if tmp.fail_test_times >= 100:  # 失败次数大于100直接置为无效代理
                     setattr(tmp, 'status', 1)
                 update_proxy_status(is_success=is_success, ip_info_list=[tmp])
+        else:
+            logger.info('[代理检测] 暂时没有要检测的ip')
+            time.sleep(2)
 
 
 # ping 一个ip
@@ -34,3 +39,7 @@ def ping(host='127.0.0.1', port=8000, timeout=3):
     except Exception, e:
         logger.error('[检测代理] 代理: %s port: %s 无法connect;', host, port)
         return False
+
+
+if __name__ == '__main__':
+    test()
