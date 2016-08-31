@@ -10,13 +10,8 @@ import hashlib
 from ProxyItem import ProxyItem
 from proxy_item_dao import batch_insert_proxy
 from utils import *
+from configs.user_agent_config import get_user_agent
 
-# 简单的agent 还是要用的,防止被封
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) '
-                  'AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/51.0.2704.106 Safari/537.36'
-}
 # 日志配置
 logger = get_logger(__name__)
 
@@ -45,7 +40,8 @@ def fetch():
         url = crawl_task_item.url
         logger.info('[fetch] [%s] 开始抓取网页:%s', site, url)
         try:
-            res = requests.get(url=url, headers=HEADERS)
+            res = requests.get(url=url, headers=dict('User-Agent',
+                                                     get_user_agent()))
         except requests.exceptions.RequestException as e:
             logger.exception('[fetch] [%s] 抓取网页:%s 出现异常', site, url, e)
         status_code = res.status_code
@@ -72,7 +68,7 @@ def fetch():
                             ip_location)
                 ip_list.append(ProxyItem(ip=ip,
                                          port=port,
-                                         proxy_type=ip_type,
+                                         proxy_type=ip_type.upper(),
                                          ip_location=ip_location))
         batch_insert_proxy(ip_list=ip_list)
         logger.info('[fetch][%s] 批量保存成功', site)

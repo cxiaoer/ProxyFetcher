@@ -4,6 +4,7 @@ from proxy_item_dao import get_need_test_proxy, update_proxy_status
 from configs import logger_config
 import copy
 import time
+from check_proxy import ping, check_visit_website
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 
@@ -27,19 +28,6 @@ def test():
         else:
             logger.info('[代理检测] 暂时没有要检测的ip')
             time.sleep(2)
-
-
-# ping 一个ip
-def ping(host='127.0.0.1', port=8000, timeout=3):
-    try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, int(port)))
-        logger.info('[检测代理] 代理: %s port: %s 验证通过;', host, port)
-        return True
-    except Exception, e:
-        print e.message
-        logger.error('[检测代理] 代理: %s port: %s 无法connect;', host, port)
-        return False
 
 
 if __name__ == '__main__':

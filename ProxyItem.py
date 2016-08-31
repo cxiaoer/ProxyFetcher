@@ -8,3 +8,7 @@ class ProxyItem(object):
         super(ProxyItem, self).__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+    def __str__(self):
+        return '&'.join([key + '=' + value for (key, value) in
+                         self.__dict__.items()])
