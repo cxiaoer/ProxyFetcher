@@ -8,7 +8,6 @@ from configs import logger_config
 logger = logger_config.get_logger(__name__)  # 日志配置
 available_connection_pool = []  # 用list数据结构来存放空闲连接
 active_num = 0  # 正在使用中的连接数目
-
 connection_lock = RLock()  # 可重入连接锁
 
 

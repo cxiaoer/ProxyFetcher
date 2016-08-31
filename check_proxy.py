@@ -10,7 +10,7 @@ from configs.user_agent_config import get_user_agent
 from items.ProxyItem import ProxyItem
 
 logger = logger_config.get_logger(__name__)  # 日志配置
-
+# 构造代理格式化字符串
 http_proxy_format = 'http://{0}:{1}'
 https_proxy_format = 'https://{0}:{1}'
 

@@ -1,32 +1,23 @@
 # coding:utf-8
 
-import hashlib
 from Queue import Empty
 from Queue import Queue
-
 import requests
 from bs4 import BeautifulSoup
-
 from configs.extractor_config import *
 from configs.logger_config import *
 from configs.user_agent_config import get_user_agent
 from items.ProxyItem import ProxyItem
 from proxy_item_dao import batch_insert_proxy
 from utils import *
+from duplicate_remover import set_duplicate_remover
 
 # 日志配置
 logger = get_logger(__name__)
-
 # 全局的对应网站的抓取ip配置信息
 extractor_config = init_extractor_conf()
-
 # 抓取队列, 支持最大100万任务
 task_queue = Queue(maxsize=100 * 10000)
-
-# 检查url是否重复的锁
-check_url_duplicate_lock = threading.RLock()
-# 已经抓取过的url集合
-url_md5_set = set()
 
 
 @thread_pool(thread_num=5)
@@ -83,26 +74,10 @@ def fetch():
                 # 构造分页url
                 url = conf.nav_page_format.format(page_num)
                 print url
-                if not check_url_duplicate(url=url):
+                if not set_duplicate_remover(url=url):
                     tmp_crawl_task_item = CrawlTaskItem(site=site,
                                                         url=url)
                     task_queue.put(tmp_crawl_task_item)
-
-
-# url 去重
-def check_url_duplicate(url):
-    hash_type = hashlib.md5()
-    hash_type.update(url)
-    url_md5 = hash_type.hexdigest()
-    logger.info('[fetch] 开始检查%s 是否已经抓取过;md5:%s', url, url_md5)
-    check_result = False
-    with check_url_duplicate_lock:
-        if url_md5 in url_md5_set:
-            logger.warn('[fetch] url: %s [已经]抓取过;md5:%s', url, url_md5)
-            check_result = True
-        else:
-            url_md5_set.add(url_md5)
-    return check_result
 
 
 def init():
