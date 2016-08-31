@@ -46,8 +46,9 @@ def check_visit_website(ip_info, website):
                      proxy_type, ip_info)
         raise Exception
     try:
-        res = requests.get(url=url, proxies=proxies, headers=dict('User-Agent',
-                                                                  get_user_agent()))
+        user_agent = get_user_agent()
+        res = requests.get(url=url, proxies=proxies, headers={'User-Agent'
+                                                              : user_agent})
         status_code = res.status_code
         if status_code < 200 or status_code >= 400:
             logger.error('[检测代理] 用代理:%s 访问网站:%s 失败, 状态码:%s',

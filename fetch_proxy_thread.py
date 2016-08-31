@@ -40,8 +40,9 @@ def fetch():
         url = crawl_task_item.url
         logger.info('[fetch] [%s] 开始抓取网页:%s', site, url)
         try:
-            res = requests.get(url=url, headers=dict('User-Agent',
-                                                     get_user_agent()))
+            user_agent = get_user_agent()
+            res = requests.get(url=url, headers={'User-Agent'
+                                                 : user_agent})
         except requests.exceptions.RequestException as e:
             logger.exception('[fetch] [%s] 抓取网页:%s 出现异常', site, url, e)
         status_code = res.status_code
