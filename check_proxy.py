@@ -51,7 +51,7 @@ def check_visit_website(ip_info, website):
     try:
         user_agent = get_user_agent()
         res = requests.get(url=url, proxies=proxies, headers={'User-Agent'
-                                                              : user_agent})
+                                                              : user_agent}, timeout=10)
         status_code = res.status_code
         if status_code < 200 or status_code >= 400:
             logger.error('[检测代理] 用代理:%s 访问网站:%s 失败, 状态码:%s',
@@ -61,5 +61,6 @@ def check_visit_website(ip_info, website):
                     proxies, url, status_code)
         return True
     except requests.exceptions.RequestException as e:
-        logger.error('[检测代理] 用代理:%s 访问网站:%s 异常', proxies, url, e)
+        print e
+        logger.error('[检测代理] 用代理:%s 访问网站:%s 异常', proxies, url)
         return False

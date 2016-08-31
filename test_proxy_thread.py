@@ -2,14 +2,16 @@
 import copy
 import time
 
-from check_proxy import ping
+from check_proxy import ping, check_visit_website
 from configs import logger_config
 from proxy_item_dao import get_need_test_proxy, update_proxy_status
+from utils import *
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 
 
 # 检测ip
+@thread_pool(thread_num=10)
 def test():
     while True:
         need_test_proxy_list = get_need_test_proxy(num=100)
@@ -18,7 +20,8 @@ def test():
                 tmp = copy.copy(proxy)
                 setattr(tmp, 'status', 0)  # 先标记为需要检测
                 is_success = False
-                if ping(host=tmp.ip, port=tmp.port, timeout=3):
+                # if ping(host=tmp.ip, port=tmp.port, timeout=3):
+                if check_visit_website(tmp, website='douban.com'):
                     is_success = True
                 setattr(tmp, 'next_test_time', time.strftime(
                     '%Y-%m-%d %H:%M:%S', time.localtime(time.time() + 10)))
