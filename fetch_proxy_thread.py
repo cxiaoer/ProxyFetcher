@@ -12,8 +12,7 @@ from proxy_item_dao import batch_insert_proxy
 from utils import *
 from duplicate_remover import set_duplicate_remover
 
-# 日志配置
-logger = get_logger(__name__)
+logger = get_logger(__name__)  # 日志配置
 # 全局的对应网站的抓取ip配置信息
 extractor_config = init_extractor_conf()
 # 抓取队列, 支持最大100万任务
