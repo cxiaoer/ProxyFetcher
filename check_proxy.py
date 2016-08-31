@@ -19,6 +19,7 @@ https_proxy_format = 'https://%s:%s'
 def ping(host='127.0.0.1', port=8000, timeout=3):
     try:
         socket.setdefaulttimeout(timeout)
+        # 代理和端口元组中,端口是int类型的,不是str
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, int(port)))
         logger.info('[检测代理] ping验证通过; 代理: %s port: %s 验证通过;', host, port)
         return True
