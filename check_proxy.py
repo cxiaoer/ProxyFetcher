@@ -11,8 +11,8 @@ from items.ProxyItem import ProxyItem
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 
-http_proxy_format = 'http://%s:%s'
-https_proxy_format = 'https://%s:%s'
+http_proxy_format = 'http://{0}:{1}'
+https_proxy_format = 'https://{0}:{1}'
 
 
 # ping 一个ip
@@ -39,9 +39,9 @@ def check_visit_website(ip_info, website):
     proxy_type = ip_info.proxy_type
     proxies = {}
     if proxy_type == 'HTTP':
-        proxies['http'] = http_proxy_format % (ip_info.ip, ip_info.port)
+        proxies['http'] = http_proxy_format.format(ip_info.ip, ip_info.port)
     elif proxy_type == 'HTTPS':
-        proxies['https'] = https_proxy_format % (ip_info.ip, ip_info.port)
+        proxies['https'] = https_proxy_format.format(ip_info.ip, ip_info.port)
     elif proxy_type == 'SOCKS4/5':
         pass
     else:
