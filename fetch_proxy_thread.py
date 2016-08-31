@@ -13,10 +13,8 @@ from utils import *
 from duplicate_remover import set_duplicate_remover
 
 logger = get_logger(__name__)  # 日志配置
-# 全局的对应网站的抓取ip配置信息
-extractor_config = init_extractor_conf()
-# 抓取队列, 支持最大100万任务
-task_queue = Queue(maxsize=100 * 10000)
+extractor_config = init_extractor_conf()  # 全局的对应网站的抓取ip配置信息
+task_queue = Queue(maxsize=100 * 10000)  # 抓取队列, 支持最大100万任务
 
 
 @thread_pool(thread_num=5)
