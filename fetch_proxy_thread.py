@@ -55,8 +55,6 @@ def fetch():
         soup = BeautifulSoup(content, 'html.parser')
         ip_list = []
         for tag in soup.select(conf.ip_info_list):
-            # ip_info_matcher = conf.ip_info_reg.finditer(str(tag))
-            # ip_info_matcher = test_reg.search(str(tag))
             ip_info_matcher = conf.ip_info_reg.search(str(tag))
             if ip_info_matcher:
                 ip = ip_info_matcher.group('ip')
