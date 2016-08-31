@@ -1,10 +1,10 @@
 # coding:utf-8
-import socket
-from proxy_item_dao import get_need_test_proxy, update_proxy_status
-from configs import logger_config
 import copy
 import time
-from check_proxy import ping, check_visit_website
+
+from check_proxy import ping
+from configs import logger_config
+from proxy_item_dao import get_need_test_proxy, update_proxy_status
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 
