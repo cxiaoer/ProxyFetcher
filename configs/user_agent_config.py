@@ -1,4 +1,7 @@
 # coding:utf-8
+"""
+user-agent 解析和读取
+"""
 
 import random
 
@@ -33,8 +36,11 @@ user_agent_list.append('Mozilla/5.0 (compatible; MSIE 9.0; '
                        'Windows NT 6.0) Opera 12.14')  # 12.14
 
 
-# 随机获取一个user_agent
 def get_user_agent():
+    """
+    随机获取一个user_agent
+    :return:
+    """
     length = len(user_agent_list)
     random_index = random.randint(0, length - 1)
     return user_agent_list[random_index]

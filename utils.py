@@ -1,4 +1,11 @@
 # coding:utf-8
+""" 封装了一些常用的操作
+
+1: 请求频率限制
+2: 线程池的装饰器
+3: 时间保留两位小数的格式化
+
+"""
 
 import time
 import threading
@@ -9,8 +16,15 @@ incr_req_times_lock = threading.RLock()
 req_slide_window = []
 
 
-# 请求频率限制
 def rate_limit(max_req_times, time_value, time_unit):
+    """请求频率限制
+
+    :param max_req_times: 最大请求频率
+    :param time_value:  单位时间值
+    :param time_unit: 时间单位; 小时->'H'
+    :return
+    """
+
     global req_slide_window
 
     current_time = time.time()  # 当前时间以秒为单位
@@ -36,14 +50,24 @@ def rate_limit(max_req_times, time_value, time_unit):
                 return False
 
 
-# 将秒转成毫秒， 并且保留两位小数
 def format_time(time_in_seconds):
+    """将秒转成毫秒， 并且保留两位小数
+
+    :param time_in_seconds: 比如time.time() 的调用结果
+    :return 保留两位小数的浮点数表示
+    """
+
     milliseconds = time_in_seconds * 1000
     return float('%0.2f' % milliseconds)
 
 
-# 无返回的线程池的装饰器
 def thread_pool(thread_num):
+    """无返回的线程池的装饰器
+
+    :param thread_num: 自定义的线程数
+    :return
+    """
+
     def _outer_func(target_func):
         def __inner_func(*args, **kwargs):
             threads = []

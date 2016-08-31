@@ -1,4 +1,7 @@
 # coding:utf-8
+"""
+数据库的配置
+"""
 
 
 db_host = 'localhost'

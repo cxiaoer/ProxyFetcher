@@ -1,5 +1,7 @@
 # coding:utf-8
-
+"""
+抓取配置的读取和解析
+"""
 
 import ConfigParser
 import re
@@ -10,8 +12,12 @@ config = ConfigParser.ConfigParser()
 config.read('configs/extractor.conf')
 
 
-# 初始化所有的提取配置,尤其是正则配置
 def init_extractor_conf():
+    """
+    初始化所有的提取配置,尤其是正则配置
+    :return:
+    """
+
     d = {}
     for section_name in config.sections():
         # ip 信息提取配置
@@ -36,8 +42,11 @@ def init_extractor_conf():
     return d
 
 
-# 从conf中初始化抓取任务
 def init_crawl_task():
+    """
+    从conf中初始化抓取任务
+    :return:
+    """
     init_crawl_task_items = []
     for section_name in config.sections():
         tmp_crawl_task_item = CrawlTaskItem(site=section_name,

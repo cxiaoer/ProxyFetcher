@@ -1,22 +1,32 @@
 # coding:utf-8
+"""检查代理的一些操作
 
+1: socket 去ping 一个代理
+2: 用代理去访问一个网站,看能否访问
+"""
 
 import socket
 
 import requests
 
-from configs import logger_config
+from configs.logger_config import get_logger
 from configs.user_agent_config import get_user_agent
 from items.ProxyItem import ProxyItem
 
-logger = logger_config.get_logger(__name__)  # 日志配置
+logger = get_logger(__name__)  # 日志配置
 # 构造代理格式化字符串
 http_proxy_format = 'http://{0}:{1}'
 https_proxy_format = 'https://{0}:{1}'
 
 
-# ping 一个ip
 def ping(host='127.0.0.1', port=8000, timeout=3):
+    """ ping 一个ip
+    :param host: 代理ip
+    :param port:  代理端口(int 类型)
+    :param timeout: 超时时间
+    :return:
+    """
+
     try:
         socket.setdefaulttimeout(timeout)
         # 代理和端口元组中,端口是int类型的,不是str
@@ -29,8 +39,14 @@ def ping(host='127.0.0.1', port=8000, timeout=3):
         return False
 
 
-# 用代理去访问网站
 def check_visit_website(ip_info, website):
+    """
+    用代理去访问网站
+    :param ip_info: class:`ProxyItem` object
+    :param website:  网站host; 比如'douban.com'
+    :return:
+    """
+
     url = website
     if not website.startswith('http'):
         url = 'http://' + website

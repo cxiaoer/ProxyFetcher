@@ -1,4 +1,7 @@
 # coding:utf-8
+"""
+代理对象的类表示
+"""
 
 
 class ProxyItem(object):

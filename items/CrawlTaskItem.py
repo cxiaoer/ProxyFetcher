@@ -1,4 +1,7 @@
 # coding:utf-8
+"""
+抓取任务的类表示
+"""
 
 
 class CrawlTaskItem(object):

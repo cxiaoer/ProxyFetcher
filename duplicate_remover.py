@@ -1,4 +1,9 @@
 # coding:utf-8
+"""
+常用的去重操作
+1: hashset 去重
+2: redis去重
+"""
 
 import hashlib
 from threading import RLock
@@ -15,8 +20,14 @@ def __url_md5(url):
     return result
 
 
-# set 去重
 def set_duplicate_remover(url):
+    """
+    hashset 去重
+
+    :param url: 要访问的url;  比如http://www.baidu.com
+    :return:
+    """
+
     url_md5 = __url_md5(url=url)
     with __lock:
         if url_md5 in url_md5_set:
@@ -27,6 +38,12 @@ def set_duplicate_remover(url):
     return is_url_crawled
 
 
-# redis 去重
 def redis_duplicate_remover(url):
+    """
+    redis 去重
+
+    :param url: 要访问的url;  比如http://www.baidu.com
+    :return:
+    """
+
     pass

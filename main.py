@@ -1,4 +1,6 @@
 # coding:utf-8
+"""代理服务程序的主入口
+"""
 
 from fetch_proxy_thread import fetch, init
 from test_proxy_thread import test

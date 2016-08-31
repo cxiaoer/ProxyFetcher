@@ -1,4 +1,6 @@
 # coding:utf-8
+"""抓取代理线程组
+"""
 
 from Queue import Empty
 from Queue import Queue
@@ -19,6 +21,9 @@ task_queue = Queue(maxsize=100 * 10000)  # 抓取队列, 支持最大100万任�
 
 @thread_pool(thread_num=5)
 def fetch():
+    """抓取
+    """
+
     while True:
         try:
             # 10秒木有任务说明做完了,直接退出
@@ -78,6 +83,9 @@ def fetch():
 
 
 def init():
+    """从配置中初始化抓取任务
+    """
+
     init_crawl_task_items = init_crawl_task()
     for crawl_task_item in init_crawl_task_items:
         task_queue.put(crawl_task_item)

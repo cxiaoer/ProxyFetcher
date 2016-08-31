@@ -1,23 +1,32 @@
 # coding:utf-8
+"""
+自定义简单连接池管理
+1: 获取连接
+2: 释放连接
+"""
 
 import MySQLdb
 import time
 from threading import RLock
-from configs import logger_config
+from configs.logger_config import get_logger
 
-logger = logger_config.get_logger(__name__)  # 日志配置
+logger = get_logger(__name__)  # 日志配置
 available_connection_pool = []  # 用list数据结构来存放空闲连接
 active_num = 0  # 正在使用中的连接数目
 connection_lock = RLock()  # 可重入连接锁
 
 
 class ConnectionWrapper(object):
+    """数据连接的包装, 增加一些其他属性"""
+
     def __init__(self, connection, last_free_time):
         self.connection = connection
         self.last_free_time = last_free_time
 
 
 class SimpleConnectionPool(object):
+    """连接池对象"""
+
     def __init__(self, host, db, username, password, max_connection_size):
         self.host = host
         self.db = db
@@ -51,8 +60,13 @@ class SimpleConnectionPool(object):
             active_num += 1
         return connection_wrapper.connection
 
-    # 同步获取连接,一段时间没有获取到连接,直接失败
     def get_connection(self, timeout):
+        """
+        同步获取连接,一段时间没有获取到连接,直接失败
+        :param timeout:  获取连接超时时间
+        :return:
+        """
+
         current_time = time.time()
         with connection_lock:
             while True:
@@ -66,8 +80,12 @@ class SimpleConnectionPool(object):
                     continue
                 return connection
 
-    # 释放连接
     def free_connection(self, connection):
+        """
+        释放连接
+        :param connection:  数据库连接对象
+        :return:
+        """
         global active_num
         with connection_lock:
             available_connection_pool.append(ConnectionWrapper(connection,
