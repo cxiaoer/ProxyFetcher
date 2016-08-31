@@ -1,10 +1,11 @@
 # coding:utf-8
 
-from configs import logger_config
+import MySQLdb
+
 from SimpleConnectionPool import SimpleConnectionPool
 from configs import db_config
-from ProxyItem import ProxyItem
-import MySQLdb
+from configs import logger_config
+from items.ProxyItem import ProxyItem
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 # 数据库连接池

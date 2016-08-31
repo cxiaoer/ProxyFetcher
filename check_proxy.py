@@ -2,10 +2,12 @@
 
 
 import socket
-from configs import logger_config
+
 import requests
-from ProxyItem import ProxyItem
+
+from configs import logger_config
 from configs.user_agent_config import get_user_agent
+from items.ProxyItem import ProxyItem
 
 logger = logger_config.get_logger(__name__)  # 日志配置
 

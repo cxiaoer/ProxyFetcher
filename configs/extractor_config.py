@@ -3,7 +3,8 @@
 
 import ConfigParser
 import re
-from CrawlTaskItem import CrawlTaskItem
+
+from items.CrawlTaskItem import CrawlTaskItem
 
 config = ConfigParser.ConfigParser()
 config.read('configs/extractor.conf')

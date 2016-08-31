@@ -1,16 +1,18 @@
 # coding:utf-8
 
-from configs.extractor_config import *
-from configs.logger_config import *
+import hashlib
 from Queue import Empty
 from Queue import Queue
+
 import requests
 from bs4 import BeautifulSoup
-import hashlib
-from ProxyItem import ProxyItem
+
+from configs.extractor_config import *
+from configs.logger_config import *
+from configs.user_agent_config import get_user_agent
+from items.ProxyItem import ProxyItem
 from proxy_item_dao import batch_insert_proxy
 from utils import *
-from configs.user_agent_config import get_user_agent
 
 # 日志配置
 logger = get_logger(__name__)
