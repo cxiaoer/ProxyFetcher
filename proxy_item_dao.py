@@ -123,25 +123,24 @@ def update_proxy_status(ip_info_list):
     connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
     try:
         cursor = connection.cursor()
-        update_sql = 'update T_IP_Proxies set '
         for ip_info in ip_info_list:
+            update_sql = "update T_IP_Proxies set "
             if not isinstance(ip_info, ProxyItem):
                 raise Exception
-            if not ip_info.status:
-                update_sql += 'Status = {0}, '.format(ip_info.status)
-            elif not ip_info.next_test_time:
-                update_sql += 'NextTestTime = {0}, '.format(ip_info.
-                                                            next_test_time)
-            elif not ip_info.success_test_times:
-                update_sql += 'success_test_times={0},'.format(ip_info.
+            if ip_info.status is not None:
+                update_sql += "Status = {0}, ".format(ip_info.status)
+            if ip_info.next_test_time is not None:
+                update_sql += "NextTestTime = '{0}', ".format(ip_info.
+                                                              next_test_time)
+            if ip_info.success_test_times is not None:
+                update_sql += "SuccessedTestTimes={0},".format(ip_info.
                                                                success_test_times)
-            elif not ip_info.fail_test_times:
-                update_sql += 'fail_test_times ={0}, '.format(ip_info.
+            if ip_info.fail_test_times is not None:
+                update_sql += "FailedTestTimes ={0}, ".format(ip_info.
                                                               fail_test_times)
-            else:
-                update_sql += 'LastModifyTime = NOW() where Ip={0}' \
-                              'and Port = {1}'.format(ip_info.ip,
-                                                      ip_info.port)
+            update_sql += "LastModifyTime = NOW() where Ip='{0}' " \
+                          'and Port = {1}'.format(ip_info.ip,
+                                                  ip_info.port)
             print update_sql
             cursor.execute(update_sql)
             connection.commit()
