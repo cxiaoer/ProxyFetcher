@@ -12,7 +12,7 @@ from configs.user_agent_config import get_user_agent
 from items.ProxyItem import ProxyItem
 from proxy_item_dao import batch_insert_proxy
 from utils import *
-from duplicate_remover import set_duplicate_remover
+from duplicate_remover import hashset_duplicate_remover
 
 logger = get_logger(__name__)  # 日志配置
 extractor_config = init_extractor_conf()  # 全局的对应网站的抓取ip配置信息
@@ -76,7 +76,7 @@ def fetch():
                 # 构造分页url
                 url = conf.nav_page_format.format(page_num)
                 print url
-                if not set_duplicate_remover(url=url):
+                if not hashset_duplicate_remover(url=url):
                     tmp_crawl_task_item = CrawlTaskItem(site=site,
                                                         url=url)
                     task_queue.put(tmp_crawl_task_item)

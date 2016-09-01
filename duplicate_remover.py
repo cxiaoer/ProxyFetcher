@@ -20,7 +20,7 @@ def __url_md5(url):
     return result
 
 
-def set_duplicate_remover(url):
+def hashset_duplicate_remover(url):
     """
     hashset 去重
 
