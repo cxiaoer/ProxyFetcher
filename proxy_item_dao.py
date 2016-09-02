@@ -31,13 +31,15 @@ def batch_insert_proxy(ip_list):
                  'values (%s, %s, %s, %s) '
     ip_info_list = [(ip.ip, ip.port, ip.proxy_type, ip.ip_location)
                     for ip in ip_list]
-    connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
+    # 获取连接,超时5秒钟
+    connection_wrapper = connection_pool.get_connection(timeout=5)
+    connection = connection_wrapper.connection
     try:
         cursor = connection.cursor()
         cursor.executemany(insert_sql, ip_info_list)
         connection.commit()
     finally:
-        connection_pool.free_connection(connection=connection)
+        connection_pool.free_connection(connection_wrapper=connection_wrapper)
 
 
 def get_need_test_proxy(num):
@@ -56,7 +58,9 @@ def get_need_test_proxy(num):
                  'where NextTestTime < now() and Status = 0 ' \
                  'order by NextTestTime asc ' \
                  'limit %s'
-    connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
+    # 获取连接,超时5秒钟
+    connection_wrapper = connection_pool.get_connection(timeout=5)
+    connection = connection_wrapper.connection
     try:
         cursor = connection.cursor()
         cursor.execute(select_sql, (num,))
@@ -79,7 +83,7 @@ def get_need_test_proxy(num):
     except MySQLdb.Error as error:
         logger.exception('[读取检测任务] 抛异常', error)
     finally:
-        connection_pool.free_connection(connection=connection)
+        connection_pool.free_connection(connection_wrapper=connection_wrapper)
     return need_test_proxy_list
 
 
@@ -99,7 +103,9 @@ def get_need_reset_proxy(num, timeout):
                  'where NextTestTime < now() + %s and Status = 2 ' \
                  'order by LastModifyTime asc ' \
                  'limit %s'
-    connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
+    # 获取连接,超时5秒钟
+    connection_wrapper = connection_pool.get_connection(timeout=5)
+    connection = connection_wrapper.connection
     try:
         cursor = connection.cursor()
         cursor.execute(select_sql, (timeout, num))
@@ -109,7 +115,7 @@ def get_need_reset_proxy(num, timeout):
     except MySQLdb.Error as error:
         logger.exception('[重置代理] 抛异常', error)
     finally:
-        connection_pool.free_connection(connection=connection)
+        connection_pool.free_connection(connection_wrapper=connection_wrapper)
     return need_reset_proxy_list
 
 
@@ -120,7 +126,9 @@ def update_proxy_status(ip_info_list):
     :return
     """
 
-    connection = connection_pool.get_connection(timeout=5)  # 获取连接,超时5秒钟
+    # 获取连接,超时5秒钟
+    connection_wrapper = connection_pool.get_connection(timeout=5)
+    connection = connection_wrapper.connection
     try:
         cursor = connection.cursor()
         for ip_info in ip_info_list:
@@ -148,4 +156,4 @@ def update_proxy_status(ip_info_list):
         print error
         logger.exception('[更新任务状态] 抛异常')
     finally:
-        connection_pool.free_connection(connection=connection)
+        connection_pool.free_connection(connection_wrapper=connection_wrapper)

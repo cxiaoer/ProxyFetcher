@@ -19,7 +19,7 @@ def reset_timeout_proxy(timeout=600):
     """
     while 1:  # while 1比while true更快, 效率更高
         # 默认将超时时间设为10分钟
-        need_test_proxy_list = get_need_reset_proxy(100, 600)
+        need_test_proxy_list = get_need_reset_proxy(100, timeout=timeout)
         if len(need_test_proxy_list):
             logger.info('[代理检测] 暂时没有要检测的ip')
             time.sleep(600)
