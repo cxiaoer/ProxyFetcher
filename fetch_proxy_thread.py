@@ -29,21 +29,21 @@ def fetch():
             # 10秒木有任务说明做完了,直接退出
             crawl_task_item = task_queue.get(block=True, timeout=60)
         except Empty:
-            logger.warn('[fetch] 木有抓取任务, 线程退出')
+            logger.warn('[抓取代理] 木有抓取任务, 线程退出')
             break
         site = crawl_task_item.site
         url = crawl_task_item.url
-        logger.info('[fetch] [%s] 开始抓取网页:%s', site, url)
+        logger.info('[抓取代理] [%s] 开始抓取网页:%s', site, url)
         try:
             user_agent = get_user_agent()
             res = requests.get(url=url, headers={'User-Agent'
                                                  : user_agent})
         except requests.exceptions.RequestException as e:
-            logger.exception('[fetch] [%s] 抓取网页:%s 出现异常', site, url, e)
+            logger.exception('[抓取代理] [%s] 抓取网页:%s 出现异常', site, url, e)
         status_code = res.status_code
         content = res.content
         if not status_code == 200:
-            logger.error('[fetch] [%s] 抓取网页:%s 状态码[%s]', site, url,
+            logger.error('[抓取代理] [%s] 抓取网页:%s 状态码[%s]', site, url,
                          status_code)
             continue
         # ip信息提取
@@ -57,7 +57,7 @@ def fetch():
                 port = ip_info_matcher.group('port')
                 ip_type = ip_info_matcher.group('ip_type')
                 ip_location = ip_info_matcher.group('ip_location')
-                logger.info('[fetch][%s] 在页面[%s]中抓取到ip:%s, 端口:%s, '
+                logger.info('[抓取代理][%s] 在页面[%s]中抓取到ip:%s, 端口:%s, '
                             '类型:%s,位置:%s', site, url, ip, port, ip_type,
                             ip_location)
                 ip_list.append(ProxyItem(ip=ip,
@@ -65,7 +65,7 @@ def fetch():
                                          proxy_type=ip_type.upper(),
                                          ip_location=ip_location))
         batch_insert_proxy(ip_list=ip_list)
-        logger.info('[fetch][%s] 批量保存成功', site)
+        logger.info('[抓取代理][%s] 批量保存成功', site)
         # 没有分页
         if conf.nav_area_css is None:
             continue
