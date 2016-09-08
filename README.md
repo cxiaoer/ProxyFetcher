@@ -54,7 +54,7 @@ CREATE TABLE T_IP_Proxies (
 #### `TODO`
 
 * 优化抓取和检测逻辑
-* 提供接口服务
+* 提供接口服务(`打算用Scala实现`)
 
 
 
