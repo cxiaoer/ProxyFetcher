@@ -13,7 +13,7 @@ from utils import *
 logger = logger_config.get_logger(__name__)  # 日志配置
 
 
-@thread_pool(thread_num=10)
+@thread_pool(thread_num=50)
 def test():
     """
     检测ip

@@ -92,5 +92,6 @@ def init():
 
 
 if __name__ == '__main__':
-    init()
-    fetch()
+    # init()
+    # fetch()
+    res = requests.get('https://free-proxy-list.net/')

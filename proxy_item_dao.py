@@ -79,7 +79,8 @@ def get_need_test_proxy(num):
                 need_test_proxy_list.append(ProxyItem(ip=item['ip'],
                                                       port=item['port'],
                                                       proxy_type=item['proxy_type'],
-                                                      fail_test_times=item['fail_test_times']))
+                                                      fail_test_times=item['fail_test_times'],
+                                                      success_test_times=item['success_test_times']))
     except MySQLdb.Error as error:
         logger.exception('[读取检测任务] 抛异常', error)
     finally:

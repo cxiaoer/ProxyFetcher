@@ -69,7 +69,7 @@ class SimpleConnectionPool(object):
                         connection_wrapper.connection_id)
         else:
             connection_wrapper = None
-        if connection_wrapper.connection is not None:
+        if connection_wrapper is not None:
             self.active_num += 1
         return connection_wrapper
 
@@ -90,6 +90,7 @@ class SimpleConnectionPool(object):
                 connection_wrapper = self.__get_connection()
                 if connection_wrapper is None:
                     logger.error('[连接池] 暂时没有可用连接')
+                    time.sleep(0.1)  # 等待100毫秒
                     continue
                 return connection_wrapper
 

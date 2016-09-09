@@ -8,4 +8,4 @@ db_host = 'localhost'
 db_username = 'root'
 db_password = ''
 db = 'ip'
-max_connection_size = 10
+max_connection_size = 50
