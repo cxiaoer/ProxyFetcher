@@ -5,7 +5,7 @@
 2: 释放连接
 """
 
-import MySQLdb
+import pymysql
 import time
 from threading import RLock
 from configs.logger_config import get_logger
@@ -41,7 +41,7 @@ class SimpleConnectionPool(object):
 
     # 初始化一个连接
     def __new_connection(self):
-        connection = MySQLdb.connect(host=self.host,
+        connection = pymysql.connect(host=self.host,
                                      user=self.username,
                                      passwd=self.password,
                                      db=self.db)

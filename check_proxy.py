@@ -33,8 +33,8 @@ def ping(host='127.0.0.1', port=8000, timeout=3):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, int(port)))
         logger.info('[检测代理] ping验证通过; 代理: %s port: %s 验证通过;', host, port)
         return True
-    except Exception, e:
-        print e.message
+    except Exception as e:
+        print(e)
         logger.error('[检测代理] ping超时; 代理: %s port: %s ;', host, port)
         return False
 
@@ -77,6 +77,6 @@ def check_visit_website(ip_info, website):
                     proxies, url, status_code)
         return True
     except requests.exceptions.RequestException as e:
-        print e
+        print(e)
         logger.error('[检测代理] 用代理:%s 访问网站:%s 异常', proxies, url)
         return False

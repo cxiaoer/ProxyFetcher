@@ -3,13 +3,13 @@
 抓取配置的读取和解析
 """
 
-import ConfigParser
+from configparser import ConfigParser
 import re
 
 from items.CrawlTaskItem import CrawlTaskItem
 
-config = ConfigParser.ConfigParser()
-config.read('configs/extractor.conf')
+config = ConfigParser()
+config.read('extractor.conf', encoding='utf-8')
 
 
 def init_extractor_conf():
@@ -64,6 +64,9 @@ class PageExtractConfig(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+# 一load就去加载配置
+init_extractor_conf()
+
 
 if __name__ == '__main__':
     # test_reg = re.compile('\d{0,8}.*[\s\S]')
@@ -75,4 +78,4 @@ if __name__ == '__main__':
     #     print False
     init_extractor_conf()
     for section in config.sections():
-        print config.items(section)
+        print(config.items(section))

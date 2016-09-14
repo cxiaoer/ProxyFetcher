@@ -48,4 +48,4 @@ def get_user_agent():
 
 if __name__ == '__main__':
     for i in range(100):
-        print get_user_agent()
+        print(get_user_agent())

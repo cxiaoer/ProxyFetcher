@@ -2,8 +2,7 @@
 """抓取代理线程组
 """
 
-from Queue import Empty
-from Queue import Queue
+from queue import Queue,Empty
 import requests
 from bs4 import BeautifulSoup
 from configs.extractor_config import *
@@ -19,7 +18,7 @@ extractor_config = init_extractor_conf()  # 全局的对应网站的抓取ip配�
 task_queue = Queue(maxsize=100 * 10000)  # 抓取队列, 支持最大100万任务
 
 
-@thread_pool(thread_num=5)
+@thread_pool(thread_num=1)
 def fetch():
     """抓取
     """
@@ -75,7 +74,7 @@ def fetch():
                 page_num = nav_area_match.group('page_num')
                 # 构造分页url
                 url = conf.nav_page_format.format(page_num)
-                print url
+                print(url)
                 if not hashset_duplicate_remover(url=url):
                     tmp_crawl_task_item = CrawlTaskItem(site=site,
                                                         url=url)
@@ -92,6 +91,6 @@ def init():
 
 
 if __name__ == '__main__':
-    # init()
-    # fetch()
+    init()
+    fetch()
     res = requests.get('https://free-proxy-list.net/')

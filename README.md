@@ -58,5 +58,10 @@ CREATE TABLE T_IP_Proxies (
 
 
 
+#### 注:
+* `python2` 对`ssl3`支持的问题, 所有将`python`版本切换到3了
+
+
+
 
 

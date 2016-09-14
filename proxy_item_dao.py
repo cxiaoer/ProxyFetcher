@@ -4,8 +4,7 @@
 批量查询; 更新状态
 """
 
-import MySQLdb
-
+from pymysql import Error
 from SimpleConnectionPool import SimpleConnectionPool
 from configs import db_config
 from configs.logger_config import get_logger
@@ -81,7 +80,7 @@ def get_need_test_proxy(num):
                                                       proxy_type=item['proxy_type'],
                                                       fail_test_times=item['fail_test_times'],
                                                       success_test_times=item['success_test_times']))
-    except MySQLdb.Error as error:
+    except Error as error:
         logger.exception('[读取检测任务] 抛异常', error)
     finally:
         connection_pool.free_connection(connection_wrapper=connection_wrapper)
@@ -113,7 +112,7 @@ def get_need_reset_proxy(num, timeout):
         columns = cursor.description
         need_reset_proxy_list = [{columns[index][0]: column for index, column in enumerate(value)}
                                  for value in cursor.fetchall()]
-    except MySQLdb.Error as error:
+    except Error as error:
         logger.exception('[重置代理] 抛异常', error)
     finally:
         connection_pool.free_connection(connection_wrapper=connection_wrapper)
@@ -150,11 +149,11 @@ def update_proxy_status(ip_info_list):
             update_sql += "LastModifyTime = NOW() where Ip='{0}' " \
                           'and Port = {1}'.format(ip_info.ip,
                                                   ip_info.port)
-            print update_sql
+            print(update_sql)
             cursor.execute(update_sql)
             connection.commit()
-    except MySQLdb.Error as error:
-        print error
+    except Error as error:
+        print(error)
         logger.exception('[更新任务状态] 抛异常')
     finally:
         connection_pool.free_connection(connection_wrapper=connection_wrapper)
