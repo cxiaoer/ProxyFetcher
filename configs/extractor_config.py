@@ -9,7 +9,7 @@ import re
 from items.CrawlTaskItem import CrawlTaskItem
 
 config = ConfigParser()
-config.read('extractor.conf', encoding='utf-8')
+config.read('configs/extractor.conf', encoding='utf-8')
 
 
 def init_extractor_conf():
