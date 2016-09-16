@@ -15,7 +15,8 @@ __lock = RLock()  # 将查询和添加set封装成原子操作的锁
 # url的md5的32位16进制表示
 def __url_md5(url):
     md5 = hashlib.md5()
-    md5.update(str.strip(url))
+    trim_url = str.strip(url)
+    md5.update(trim_url.encode())
     result = md5.hexdigest()
     return result
 
@@ -47,3 +48,9 @@ def redis_duplicate_remover(url):
     """
 
     pass
+
+
+if __name__ == '__main__':
+    print(__url_md5("hello,world"))
+    print(__url_md5("hello,world"))
+    print(__url_md5("hello"))

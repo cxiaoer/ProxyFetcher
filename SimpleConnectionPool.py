@@ -44,7 +44,8 @@ class SimpleConnectionPool(object):
         connection = pymysql.connect(host=self.host,
                                      user=self.username,
                                      passwd=self.password,
-                                     db=self.db)
+                                     db=self.db,
+                                     charset='utf8')
         return connection
 
     # 获取一个连接
