@@ -2,7 +2,7 @@
 """抓取代理线程组
 """
 
-from queue import Queue,Empty
+from queue import Queue, Empty
 import requests
 from bs4 import BeautifulSoup
 from configs.extractor_config import *
@@ -54,7 +54,10 @@ def fetch():
             if ip_info_matcher:
                 ip = ip_info_matcher.group('ip')
                 port = ip_info_matcher.group('port')
-                ip_type = ip_info_matcher.group('ip_type')
+                try:
+                    ip_type = ip_info_matcher.group('ip_type')
+                except IndexError:
+                    ip_type = 'HTTP'
                 ip_location = ip_info_matcher.group('ip_location')
                 logger.info('[抓取代理][%s] 在页面[%s]中抓取到ip:%s, 端口:%s, '
                             '类型:%s,位置:%s', site, url, ip, port, ip_type,
