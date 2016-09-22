@@ -2,4 +2,4 @@ requests==2.11.1
 beautifulsoup4=4.5.1
 PyMySQL=0.7.9
 lxml=3.6.4
-peewee=2.8.3
+sqlalchemy=1.0.15
