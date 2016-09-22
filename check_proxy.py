@@ -30,7 +30,8 @@ def ping(host='127.0.0.1', port=8000, timeout=3):
     try:
         socket.setdefaulttimeout(timeout)
         # 代理和端口元组中,端口是int类型的,不是str
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, int(port)))
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(
+            (host, int(port)))
         logger.info('[检测代理] ping验证通过; 代理: %s port: %s 验证通过;', host, port)
         return True
     except Exception as e:
@@ -66,8 +67,8 @@ def check_visit_website(ip_info, website):
         raise Exception
     try:
         user_agent = get_user_agent()
-        res = requests.get(url=url, proxies=proxies, headers={'User-Agent'
-                                                              : user_agent}, timeout=10)
+        res = requests.get(url=url, proxies=proxies, headers={
+                           'User-Agent': user_agent}, timeout=10)
         status_code = res.status_code
         if status_code < 200 or status_code >= 400:
             logger.error('[检测代理] 用代理:%s 访问网站:%s 失败, 状态码:%s',

@@ -39,11 +39,13 @@ def rate_limit(max_req_times, time_value, time_unit):
             else:  # 以分钟为单位
                 interval = time_value * 60
             # 过滤出过去一段时间的list， 判断大小
-            req_in_last_interval = [x for x in req_slide_window if x >= (current_time - interval)]
+            req_in_last_interval = [
+                x for x in req_slide_window if x >= (current_time - interval)]
             req_slide_window = req_in_last_interval
             length = len(req_in_last_interval)
             if length > max_req_times:
-                req_slide_window = req_in_last_interval[length - max_req_times:length]
+                req_slide_window = req_in_last_interval[
+                    length - max_req_times:length]
                 req_slide_window.remove(current_time)  # 超过最大值得请求不能算作
                 return True
             else:
@@ -72,7 +74,8 @@ def thread_pool(thread_num):
         def __inner_func(*args, **kwargs):
             threads = []
             for i in range(thread_num):
-                thread = threading.Thread(target=target_func, args=args, kwargs=kwargs)
+                thread = threading.Thread(
+                    target=target_func, args=args, kwargs=kwargs)
                 threads.append(thread)
             for thread in threads:
                 thread.start()

@@ -35,8 +35,7 @@ def fetch():
         logger.info('[抓取代理] [%s] 开始抓取网页:%s', site, url)
         try:
             user_agent = get_user_agent()
-            res = requests.get(url=url, headers={'User-Agent'
-                                                 : user_agent})
+            res = requests.get(url=url, headers={'User-Agent': user_agent})
         except requests.exceptions.RequestException as e:
             logger.exception('[抓取代理] [%s] 抓取网页:%s 出现异常', site, url, e)
         status_code = res.status_code
