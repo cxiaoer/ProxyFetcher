@@ -4,19 +4,12 @@
 批量查询; 更新状态
 """
 
-from pymysql import Error
-from SimpleConnectionPool import SimpleConnectionPool
-from configs import db_config
 from configs.logger_config import get_logger
-from items.ProxyItem import ProxyItem
+from items.ProxyItem import ProxyItem, session_factory
+from db_utils import transactional_session
+import datetime
 
 logger = get_logger(__name__)  # 日志配置
-# 数据库连接池
-connection_pool = SimpleConnectionPool(host=db_config.db_host,
-                                       db=db_config.db,
-                                       username=db_config.db_username,
-                                       password=db_config.db_password,
-                                       max_connection_size=db_config.max_connection_size)
 
 
 def batch_insert_proxy(ip_list):
@@ -26,19 +19,7 @@ def batch_insert_proxy(ip_list):
     :return
     """
 
-    insert_sql = 'insert ignore into T_IP_Proxies (Ip, Port, ProxyType, Location)  ' \
-                 'values (%s, %s, %s, %s) '
-    ip_info_list = [(ip.ip, ip.port, ip.proxy_type, ip.ip_location)
-                    for ip in ip_list]
-    # 获取连接,超时5秒钟
-    connection_wrapper = connection_pool.get_connection(timeout=5)
-    connection = connection_wrapper.connection
-    try:
-        cursor = connection.cursor()
-        cursor.executemany(insert_sql, ip_info_list)
-        connection.commit()
-    finally:
-        connection_pool.free_connection(connection_wrapper=connection_wrapper)
+    pass
 
 
 def get_need_test_proxy(num):
@@ -48,43 +29,25 @@ def get_need_test_proxy(num):
     :return :return: :class:`ProxyItem` object list
     """
 
-    need_test_proxy_list = []
-    # 每次取100个检测任务
-    select_sql = 'select Ip as ip, Port as port, SuccessedTestTimes as success_test_times,' \
-                 'FailedTestTimes as fail_test_times,' \
-                 'ProxyType as proxy_type, LastModifyTime as last_modify_time ' \
-                 'from T_IP_Proxies ' \
-                 'where NextTestTime < now() and Status = 0 ' \
-                 'order by NextTestTime asc ' \
-                 'limit %s'
-    # 获取连接,超时5秒钟
-    connection_wrapper = connection_pool.get_connection(timeout=5)
-    connection = connection_wrapper.connection
-    try:
-        cursor = connection.cursor()
-        cursor.execute(select_sql, (num,))
-        columns = cursor.description
-        result = [{columns[index][0]: column for index, column in enumerate(value)}
-                  for value in cursor.fetchall()]
-        for item in result:
-            update_sql = 'update T_IP_Proxies set Status = 2, ' \
-                         'LastModifyTime = now() ' \
-                         'where Ip = %s and Port = %s and LastModifyTime = %s'
-            cursor.execute(update_sql, (item['ip'], item['port'],
-                                        str(item['last_modify_time'])))
-            connection.commit()
-            # 乐观锁
-            if cursor.rowcount > 0:
-                need_test_proxy_list.append(ProxyItem(ip=item['ip'],
-                                                      port=item['port'],
-                                                      proxy_type=item['proxy_type'],
-                                                      fail_test_times=item['fail_test_times'],
-                                                      success_test_times=item['success_test_times']))
-    except Error as error:
-        logger.exception('[读取检测任务] 抛异常', error)
-    finally:
-        connection_pool.free_connection(connection_wrapper=connection_wrapper)
-    return need_test_proxy_list
+    results = []
+    with transactional_session(session_factory=session_factory) as session:
+        items = session.query(ProxyItem).filter(
+            ProxyItem.next_test_time <= datetime.datetime.now(),
+            ProxyItem.status == 0). \
+            order_by(ProxyItem.next_test_time.asc()). \
+            limit(num).all()
+        # 判断每个代理任务是否已经被其他进程取走了
+        for item in items:
+            result = session.query(ProxyItem).filter(
+                ProxyItem.ip == item.ip,
+                ProxyItem.port == item.port,
+                ProxyItem.status == item.status,
+                ProxyItem.last_modify_time == item.last_modify_time). \
+                update({'status': 2,
+                        'last_modify_time': datetime.datetime.now()})
+            if result > 0:  # 更新成功木有其他进程读取了这个任务
+                results.append(item)
+    return results
 
 
 def get_need_reset_proxy(num, timeout):
@@ -94,29 +57,29 @@ def get_need_reset_proxy(num, timeout):
     :param timeout: 任务超时时间; 一旦超时,重置任务
     :return: :class:`ProxyItem` object list
     """
-
-    need_reset_proxy_list = []
-    select_sql = 'select Ip as ip, Port as port, SuccessedTestTimes as success_test_times,' \
-                 'FailedTestTimes as fail_test_times,' \
-                 'ProxyType as proxy_type, LastModifyTime as last_modify_time ' \
-                 'from T_IP_Proxies ' \
-                 'where NextTestTime < now() + %s and Status = 2 ' \
-                 'order by LastModifyTime asc ' \
-                 'limit %s'
-    # 获取连接,超时5秒钟
-    connection_wrapper = connection_pool.get_connection(timeout=5)
-    connection = connection_wrapper.connection
-    try:
-        cursor = connection.cursor()
-        cursor.execute(select_sql, (timeout, num))
-        columns = cursor.description
-        need_reset_proxy_list = [{columns[index][0]: column for index, column in enumerate(value)}
-                                 for value in cursor.fetchall()]
-    except Error as error:
-        logger.exception('[重置代理] 抛异常', error)
-    finally:
-        connection_pool.free_connection(connection_wrapper=connection_wrapper)
-    return need_reset_proxy_list
+    pass
+    # need_reset_proxy_list = []
+    # select_sql = 'select Ip as ip, Port as port, SuccessedTestTimes as success_test_times,' \
+    #              'FailedTestTimes as fail_test_times,' \
+    #              'ProxyType as proxy_type, LastModifyTime as last_modify_time ' \
+    #              'from T_IP_Proxies ' \
+    #              'where NextTestTime < now() + %s and Status = 2 ' \
+    #              'order by LastModifyTime asc ' \
+    #              'limit %s'
+    # # 获取连接,超时5秒钟
+    # connection_wrapper = connection_pool.get_connection(timeout=5)
+    # connection = connection_wrapper.connection
+    # try:
+    #     cursor = connection.cursor()
+    #     cursor.execute(select_sql, (timeout, num))
+    #     columns = cursor.description
+    #     need_reset_proxy_list = [{columns[index][0]: column for index, column in enumerate(value)}
+    #                              for value in cursor.fetchall()]
+    # except Error as error:
+    #     logger.exception('[重置代理] 抛异常', error)
+    # finally:
+    #     connection_pool.free_connection(connection_wrapper=connection_wrapper)
+    # return need_reset_proxy_list
 
 
 def update_proxy_status(ip_info_list):
@@ -126,34 +89,40 @@ def update_proxy_status(ip_info_list):
     :return
     """
 
+    pass
     # 获取连接,超时5秒钟
-    connection_wrapper = connection_pool.get_connection(timeout=5)
-    connection = connection_wrapper.connection
-    try:
-        cursor = connection.cursor()
-        for ip_info in ip_info_list:
-            update_sql = "update T_IP_Proxies set "
-            if not isinstance(ip_info, ProxyItem):
-                raise Exception
-            if ip_info.status is not None:
-                update_sql += "Status = {0}, ".format(ip_info.status)
-            if ip_info.next_test_time is not None:
-                update_sql += "NextTestTime = '{0}', ".format(ip_info.
-                                                              next_test_time)
-            if ip_info.success_test_times is not None:
-                update_sql += "SuccessedTestTimes={0},".format(ip_info.
-                                                               success_test_times)
-            if ip_info.fail_test_times is not None:
-                update_sql += "FailedTestTimes ={0}, ".format(ip_info.
-                                                              fail_test_times)
-            update_sql += "LastModifyTime = NOW() where Ip='{0}' " \
-                          'and Port = {1}'.format(ip_info.ip,
-                                                  ip_info.port)
-            print(update_sql)
-            cursor.execute(update_sql)
-            connection.commit()
-    except Error as error:
-        print(error)
-        logger.exception('[更新任务状态] 抛异常')
-    finally:
-        connection_pool.free_connection(connection_wrapper=connection_wrapper)
+    # connection_wrapper = connection_pool.get_connection(timeout=5)
+    # connection = connection_wrapper.connection
+    # try:
+    #     cursor = connection.cursor()
+    #     for ip_info in ip_info_list:
+    #         update_sql = "update T_IP_Proxies set "
+    #         if not isinstance(ip_info, ProxyItem):
+    #             raise Exception
+    #         if ip_info.status is not None:
+    #             update_sql += "Status = {0}, ".format(ip_info.status)
+    #         if ip_info.next_test_time is not None:
+    #             update_sql += "NextTestTime = '{0}', ".format(ip_info.
+    #                                                           next_test_time)
+    #         if ip_info.success_test_times is not None:
+    #             update_sql += "SuccessedTestTimes={0},".format(ip_info.
+    #                                                            success_test_times)
+    #         if ip_info.fail_test_times is not None:
+    #             update_sql += "FailedTestTimes ={0}, ".format(ip_info.
+    #                                                           fail_test_times)
+    #         update_sql += "LastModifyTime = NOW() where Ip='{0}' " \
+    #                       'and Port = {1}'.format(ip_info.ip,
+    #                                               ip_info.port)
+    #         print(update_sql)
+    #         cursor.execute(update_sql)
+    #         connection.commit()
+    # except Error as error:
+    #     print(error)
+    #     logger.exception('[更新任务状态] 抛异常')
+    # finally:
+    #     connection_pool.free_connection(connection_wrapper=connection_wrapper)
+
+
+if __name__ == '__main__':
+    res = get_need_test_proxy(1)
+    print(res)

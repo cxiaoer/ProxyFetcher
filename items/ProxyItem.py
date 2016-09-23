@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import sessionmaker
 from configs import db_config
-
+from db_utils import temp_session
 # 对象的基类
 Base = declarative_base()
 # 初始化数据库连接
@@ -17,11 +17,10 @@ mysql_str_format = 'mysql+pymysql://{username}:{password}@{host}:3306/{db}'
 engine = create_engine(mysql_str_format.format(username=db_config.db_username,
                                                password=db_config.db_password,
                                                host=db_config.db_host,
-                                               db=db_config.db))
-
+                                               db=db_config.db), echo=True)
 
 # 会话
-DBSession = sessionmaker(bind=engine)
+session_factory = sessionmaker(bind=engine)
 
 
 class ProxyItem(Base):
@@ -49,12 +48,12 @@ class ProxyItem(Base):
 
 
 if __name__ == '__main__':
-    session = DBSession()
-    proxy_items = session.query(ProxyItem).filter(
-        ProxyItem.ip == '1.0.247.171').all()
-    print(type(proxy_items))
-    # print(proxy_item.ip)
-    for item in proxy_items:
-        print(type(item))
-        print(item.ip)
-    session.close()
+
+    with temp_session(session_factory=session_factory) as session:
+        proxy_items = session.query(ProxyItem).filter(
+            ProxyItem.ip == '1.0.247.171').all()
+        print(type(proxy_items))
+        # print(proxy_item.ip)
+        for item in proxy_items:
+            print(type(item))
+            print(item.ip)
