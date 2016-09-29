@@ -6,7 +6,7 @@
 
 from configs.logger_config import get_logger
 from items.ProxyItem import ProxyItem, session_factory
-from db_utils import transactional_session, temp_session
+from session_manager import transactional_session, temp_session
 import datetime
 
 logger = get_logger(__name__)  # 日志配置
@@ -18,7 +18,8 @@ def batch_insert_proxy(ip_list):
     :param ip_list: :class:`ProxyItem` object list
     :return
     """
-    pass
+    with transactional_session(session_factory=session_factory) as session:
+        pass
 
 
 def get_need_test_proxy(num):
