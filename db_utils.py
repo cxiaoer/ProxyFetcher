@@ -27,16 +27,17 @@ def transactional_session(session_factory, nested=True, **kwargs):
     :return:
     """
     session = session_factory(**kwargs)
-    session.begin(nested=nested)
+    # session.begin(nested=True)
     try:
         yield session
+        # 正常的话直接提交
+        session.commit()
     except:
         # 抛出异常，回退
         session.rollback()
         raise
-    else:
-        # 正常的话直接提交
-        session.commit()
+    finally:
+        session.close()
 
 
 def in_transaction(**session_kwargs):
