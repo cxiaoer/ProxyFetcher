@@ -31,12 +31,16 @@ def init_extractor_conf():
         nav_area_css = config.get(section_name, "nav_area_css")
         page_num_reg = config.get(section_name, "page_num_reg")
         d[section_name] = PageExtractConfig(ip_info_list=ip_info_list,
-                                            ip_info_reg=re.compile(ip_info_reg),
-                                            nav_area_css=None if nav_area_css == 'None'
+                                            ip_info_reg=re.compile(
+                                                ip_info_reg),
+                                            nav_area_css=None if
+                                            nav_area_css == 'None'
                                             else nav_area_css,
-                                            nav_page_format=None if nav_page_format == 'None'
+                                            nav_page_format=None if
+                                            nav_page_format == 'None'
                                             else nav_page_format,
-                                            page_num_reg=None if page_num_reg == 'None'
+                                            page_num_reg=None if
+                                            page_num_reg == 'None'
                                             else re.compile(page_num_reg)
                                             )
     return d
@@ -63,6 +67,7 @@ class PageExtractConfig(object):
         super(PageExtractConfig, self).__init__()
         for key, value in kwargs.items():
             setattr(self, key, value)
+
 
 # 一load就去加载配置
 init_extractor_conf()
