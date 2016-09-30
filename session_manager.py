@@ -36,8 +36,8 @@ def transactional_session(session_factory, nested=True, **kwargs):
         # 抛出异常，回退
         session.rollback()
         raise
-    finally:
-        session.close()
+    # finally:
+    #     session.close()
 
 
 def in_transaction(**session_kwargs):

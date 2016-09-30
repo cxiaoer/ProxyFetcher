@@ -8,14 +8,16 @@ from bs4 import BeautifulSoup
 from configs.extractor_config import *
 from configs.logger_config import *
 from configs.user_agent_config import get_user_agent
-from items.ProxyItem import ProxyItem
 from proxy_item_dao import batch_insert_proxy
 from utils import *
 from task_duplicate_remover import hashset_duplicate_remover
+import pdb
 
 logger = get_logger(__name__)  # 日志配置
 extractor_config = init_extractor_conf()  # 全局的对应网站的抓取ip配置信息
 task_queue = Queue(maxsize=100 * 10000)  # 抓取队列, 支持最大100万任务
+
+DEBUG = False
 
 
 @thread_pool(thread_num=1)
@@ -58,13 +60,15 @@ def fetch():
                 except IndexError:
                     ip_type = 'HTTP'
                 ip_location = ip_info_matcher.group('ip_location')
+                if DEBUG:
+                    pdb.set_trace()
                 logger.info('[抓取代理][%s] 在页面[%s]中抓取到ip:%s, 端口:%s, '
                             '类型:%s,位置:%s', site, url, ip, port, ip_type,
                             ip_location)
-                ip_list.append(ProxyItem(ip=ip,
-                                         port=port,
-                                         proxy_type=ip_type.upper(),
-                                         ip_location=ip_location))
+                ip_list.append({'ip': ip,
+                                'port': port,
+                                'proxy_type': ip_type.upper(),
+                                'location': ip_location})
         batch_insert_proxy(ip_list=ip_list)
         logger.info('[抓取代理][%s] 批量保存成功', site)
         # 没有分页

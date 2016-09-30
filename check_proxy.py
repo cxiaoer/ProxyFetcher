@@ -51,14 +51,16 @@ def check_visit_website(ip_info, website):
     url = website
     if not website.startswith('http'):
         url = 'http://' + website
-    if not isinstance(ip_info, ProxyItem):
-        raise Exception
-    proxy_type = ip_info.proxy_type
+    # if not isinstance(ip_info, ProxyItem):
+    #     raise Exception
+    proxy_type = ip_info['proxy_type']
     proxies = {}
     if proxy_type == 'HTTP':
-        proxies['http'] = http_proxy_format.format(ip_info.ip, ip_info.port)
+        proxies['http'] = http_proxy_format.format(ip_info['ip'],
+                                                   ip_info['port'])
     elif proxy_type == 'HTTPS':
-        proxies['https'] = https_proxy_format.format(ip_info.ip, ip_info.port)
+        proxies['https'] = https_proxy_format.format(ip_info['ip'],
+                                                     ip_info['port'])
     elif proxy_type == 'SOCKS4/5':
         pass
     else:
@@ -68,7 +70,7 @@ def check_visit_website(ip_info, website):
     try:
         user_agent = get_user_agent()
         res = requests.get(url=url, proxies=proxies, headers={
-                           'User-Agent': user_agent}, timeout=10)
+            'User-Agent': user_agent}, timeout=10)
         status_code = res.status_code
         if status_code < 200 or status_code >= 400:
             logger.error('[检测代理] 用代理:%s 访问网站:%s 失败, 状态码:%s',

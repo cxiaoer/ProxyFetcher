@@ -18,8 +18,19 @@ def batch_insert_proxy(ip_list):
     :param ip_list: :class:`ProxyItem` object list
     :return
     """
-    with transactional_session(session_factory=session_factory) as session:
-        pass
+    if ip_list is None or len(ip_list) == 0:
+        return
+    for item in list(map(transferDicToItem, ip_list)):
+        ip = item.ip
+        port = item.port
+        try:
+            with transactional_session(session_factory=session_factory) \
+                    as session:
+                session.add(item)
+        except Exception as e:
+            msg = '插入代理:{}, 端口:{}失败'.format(ip, str(port))
+            print(msg)
+            print(e)
 
 
 def get_need_test_proxy(num):
@@ -28,7 +39,7 @@ def get_need_test_proxy(num):
     :param num: 每次读取多少数量的代理信息
     :return :return: :class:`ProxyItem` object list
     """
-    results = []
+    items = []
     with transactional_session(session_factory=session_factory) as session:
         items = session.query(ProxyItem).filter(
             ProxyItem.next_test_time <= datetime.datetime.now(),
@@ -45,8 +56,8 @@ def get_need_test_proxy(num):
                 update({'status': 2,
                         'last_modify_time': datetime.datetime.now()})
             if result > 0:  # 更新成功木有其他进程读取了这个任务
-                results.append(item)
-    return results
+                items.append(item)
+    return list(map(transferItemToDic, items))
 
 
 def get_need_reset_proxy(num, timeout):
@@ -63,7 +74,7 @@ def get_need_reset_proxy(num, timeout):
             ProxyItem.status == 2). \
             order_by(ProxyItem.next_test_time.asc()). \
             limit(num).all()
-        return items
+        return list(map(transferItemToDic, items))
 
 
 def update_proxy_status(ip_info_list):
@@ -75,7 +86,7 @@ def update_proxy_status(ip_info_list):
 
     if len(ip_info_list) == 0:
         return
-    for item in ip_info_list:
+    for item in list(map(transferDicToItem, ip_info_list)):
         ip = item.ip
         port = item.port
         try:
@@ -100,17 +111,49 @@ def update_proxy_status(ip_info_list):
             # logger.exception(msg, e)
 
 
+def transferDicToItem(dic):
+    """  字典转化成对象
+    :param dic 代理信息对象字典
+    """
+    item = ProxyItem()
+    # print(type(dic['location']))
+    for key in dic.keys():
+        setattr(item, key, dic[key])
+    return item
+
+
+def transferItemToDic(item):
+    """  对象转化成字典
+    :param item 代理信息对象字典
+    """
+    return {column: getattr(item, column)
+            for column in list(filter(lambda tmp: False
+                                      if tmp.startswith('_') or
+                                      getattr(
+                                          item, tmp) is None
+                                      else True,
+                                      ProxyItem.__dict__.keys()
+                                      ))}
+
+
 if __name__ == '__main__':
     # print(ProxyItem.__dict__.keys())
     # print(type(ProxyItem.__table__)
     res = get_need_reset_proxy(1, 1)
     print(type(res))
     for item in res:
-        logger.info('代理:%s', item.ip)
-        tmp = ProxyItem()
-        tmp.ip = item.ip
-        tmp.port = item.port
-        tmp.next_test_time = datetime.datetime.now()
-        # item.next_test_time = datetime.datetime.now()
-        tmp.status = 0
-        update_proxy_status([tmp, ])
+        # logger.info('代理:%s', item.ip)
+        tmp = {}
+        tmp['ip'] = item['ip']
+        tmp['port'] = item['port']
+        tmp['next_test_time'] = datetime.datetime.now()
+        # item[next_test_time] = datetime.datetime.now()
+        tmp['status'] = 0
+        update_proxy_status([{'ip': item['ip'],
+                              'port': item['port'],
+                              'next_test_time': datetime.datetime.now(),
+                              'status': 0}, ])
+    # item_1 = ProxyItem(ip='test1', port=9000)
+    # item_2 = ProxyItem(ip='test2', port=9001)
+    # item_3 = ProxyItem(ip='test2', port=9001)
+    # batch_insert_proxy([item_1, item_2, item_3])
