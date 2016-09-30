@@ -10,16 +10,17 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import sessionmaker
 from configs import db_config
 from session_manager import temp_session
+
 # 对象的基类
 Base = declarative_base()
 # 初始化数据库连接
-mysql_str_format = 'mysql+pymysql://{username}:{password}@{host}:3306/{db}'
+mysql_str_format = 'mysql+pymysql://{username}:{password}@{host}:3306/{db}?' \
+                   'charset=utf8'
 engine = create_engine(mysql_str_format.format(username=db_config.db_username,
                                                password=db_config.db_password,
                                                host=db_config.db_host,
                                                db=db_config.db),
-                       echo=True,
-                       encoding='utf-8')
+                       echo=True)
 
 # 会话
 session_factory = sessionmaker(bind=engine)
