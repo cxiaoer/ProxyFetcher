@@ -11,7 +11,6 @@ import requests
 
 from configs.logger_config import get_logger
 from configs.user_agent_config import get_user_agent
-from items.ProxyItem import ProxyItem
 
 logger = get_logger(__name__)  # 日志配置
 # 构造代理格式化字符串
