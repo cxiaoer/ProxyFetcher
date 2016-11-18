@@ -3,3 +3,5 @@ beautifulsoup4=4.5.1
 PyMySQL=0.7.9
 lxml=3.6.4
 sqlalchemy=1.0.15
+attrs=16.2.0
+bitarray==0.8.1

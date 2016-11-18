@@ -57,9 +57,9 @@ def get_user_agent():
     随机获取一个user_agent
     :return:
     """
-    length = len(user_agent_list)
-    random_index = random.randint(0, length - 1)
-    return user_agent_list[random_index]
+    # length = len(user_agent_list)
+    # random_index = random.randint(0, length - 1)
+    return random.choice(user_agent_list)
 
 
 if __name__ == '__main__':
